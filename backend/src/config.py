@@ -3,6 +3,16 @@ Configuration settings for the SCC Criminal Cases RAG system.
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+# Look for .env in the project root directory
+env_path = Path(__file__).parent.parent.parent / '.env'
+if env_path.exists():
+    load_dotenv(dotenv_path=str(env_path))
+    print(f"Loaded environment variables from {env_path}")
+else:
+    print(f"Warning: .env file not found at {env_path}")
 
 # Explicitly import dependencies by their absolute paths
 from backend.src.utils.file_utils import ensure_dir_exists
