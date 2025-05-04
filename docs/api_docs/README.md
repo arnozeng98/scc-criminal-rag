@@ -6,7 +6,7 @@ This document describes the API endpoints for the SCC Criminal Cases RAG system.
 
 The API is available at the following base URL:
 
-```
+```bash
 http://localhost:8000
 ```
 
@@ -34,6 +34,7 @@ Query the RAG system with a question about Canadian Supreme Court criminal cases
 ```
 
 Parameters:
+
 - `query` (string, required): The question to ask the RAG system
 - `top_k` (integer, optional, default: 5): Number of top chunks to retrieve
 
@@ -65,6 +66,7 @@ Parameters:
 ```
 
 Response fields:
+
 - `answer` (string): Generated answer from the RAG system
 - `citations` (array): List of citations used in the answer
   - `case_number` (string): Case number
@@ -79,6 +81,7 @@ Response fields:
 - `error` (string, optional): Error message if any
 
 **Status Codes**:
+
 - `200 OK`: Successful query
 - `400 Bad Request`: Invalid request (e.g., empty query)
 - `500 Internal Server Error`: Server error
@@ -101,6 +104,7 @@ Check the health status of the RAG system.
 ```
 
 **Status Codes**:
+
 - `200 OK`: System is healthy
 - `500 Internal Server Error`: System is not healthy
 
@@ -154,11 +158,11 @@ fetch("http://localhost:8000/rag/query", {
   },
   body: JSON.stringify({
     query: "What are the elements of self-defense in Canada?",
-    top_k: 5
+    top_k: 5,
   }),
 })
-.then(response => response.json())
-.then(data => {
-  console.log(data.answer);
-});
-``` 
+  .then((response) => response.json())
+  .then((data) => {
+    console.log(data.answer);
+  });
+```
