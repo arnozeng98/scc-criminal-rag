@@ -175,3 +175,4 @@ cython_debug/
 backend/src/embeddings/vector_store.py.bak
 .env.example
 .gitignore~
+data/vectors/chroma_db/
