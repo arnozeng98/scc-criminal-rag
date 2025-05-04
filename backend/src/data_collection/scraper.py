@@ -222,38 +222,66 @@ def download_case(url: str, output_dir: str) -> Tuple[bool, Optional[str], Optio
     saved_path = None
     
     try:
-        driver.get(url)
-        time.sleep(2)  # Allow page to load
-        
-        # Try to extract case number from the page
+        # First, try to extract case ID from URL as the preferred method
         try:
-            case_number_elem = driver.find_element(By.XPATH, "//td[text()='Case number']/following-sibling::td")
-            case_number = case_number_elem.text.strip()
-            logger.info(f"Found case number: {case_number}")
-        except Exception as e:
-            logger.warning(f"Could not extract case number: {e}")
+            import re
+            item_match = re.search(r'/item/(\d+)/', url)
+            if item_match:
+                item_id = item_match.group(1)
+                case_number = f"item-{item_id}"
+                logger.info(f"Using item ID from URL: {item_id}")
+            else:
+                # If no item ID, prepare for alternative methods
+                logger.warning(f"No item ID found in URL: {url}")
+        except Exception as url_e:
+            logger.warning(f"Could not extract item ID from URL: {url_e}")
+        
+        # Modify URL to directly access the iframe content
+        iframe_url = url
+        if "?" in iframe_url:
+            iframe_url += "&iframe=true"
+        else:
+            iframe_url += "?iframe=true"
             
-            # Fallback: Use title element if available
+        logger.info(f"Accessing iframe content directly at: {iframe_url}")
+        driver.get(iframe_url)
+        time.sleep(3)  # Allow page to load fully
+        
+        # If we couldn't get item ID from URL, try to extract from page content
+        if case_number is None:
             try:
-                title_elem = driver.find_element(By.CSS_SELECTOR, "h3.title")
-                title = title_elem.text.strip()
-                case_number = f"title-{sanitize_filename(title)}"
-                logger.info(f"Using title as identifier: {case_number}")
-            except Exception as title_e:
-                logger.warning(f"Could not extract title: {title_e}")
+                # Try to find citation information - this is more reliable than case number
+                citation_elem = driver.find_element(By.CSS_SELECTOR, ".citation")
+                citation = citation_elem.text.strip()
+                case_number = f"citation-{sanitize_filename(citation)}"
+                logger.info(f"Found citation: {citation}")
+            except Exception as e:
+                logger.warning(f"Could not extract citation: {e}")
                 
-                # Last resort: Use URL timestamp as a unique identifier
-                timestamp = int(time.time())
-                case_number = f"citation-{timestamp}"
-                logger.info(f"Using timestamp as identifier: {case_number}")
+                # Try to find the case title
+                try:
+                    title_elem = driver.find_element(By.CSS_SELECTOR, ".decisia-title")
+                    title = title_elem.text.strip()
+                    case_number = f"title-{sanitize_filename(title)}"
+                    logger.info(f"Using title as identifier: {title}")
+                except Exception as title_e:
+                    logger.warning(f"Could not extract title: {title_e}")
+                    
+                    # Last resort: Use timestamp as a unique identifier
+                    timestamp = int(time.time())
+                    case_number = f"citation-{timestamp}"
+                    logger.info(f"Using timestamp as identifier: {case_number}")
         
         # Get the HTML content
         html_content = driver.page_source
         
+        # Ensure we're using data/raw for storage
+        raw_dir = os.path.join(output_dir, "raw")
+        os.makedirs(raw_dir, exist_ok=True)
+        
         # Save the content to a file
-        os.makedirs(output_dir, exist_ok=True)
         filename = f"{sanitize_filename(case_number)}.html"
-        file_path = os.path.join(output_dir, filename)
+        file_path = os.path.join(raw_dir, filename)
         
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(html_content)

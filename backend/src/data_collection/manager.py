@@ -35,6 +35,8 @@ def load_scraped_links(links_file: Optional[str] = None) -> Dict[str, str]:
         >>> print(f"Found {len(links)} previously scraped links")
     """
     file_path = links_file if links_file else SCRAPED_LINKS_FILE
+    # Ensure directory exists for the file
+    ensure_dir_exists(os.path.dirname(file_path))
     return load_json_file(file_path, default={})
 
 def save_scraped_link(link: str, case_number: str, links_file: Optional[str] = None) -> None:
@@ -60,7 +62,7 @@ def save_scraped_link(link: str, case_number: str, links_file: Optional[str] = N
 
 def save_cases(case_data: List[Dict[str, str]], output_dir: str = OUTPUT_DIR, links_file: Optional[str] = None) -> int:
     """
-    Download and save multiple cases in parallel.
+    Download and save multiple cases sequentially.
     
     For each case in the list, downloads the HTML content and saves it to a file.
     Updates the scraped links file with the case numbers of successfully downloaded cases.
@@ -88,13 +90,14 @@ def save_cases(case_data: List[Dict[str, str]], output_dir: str = OUTPUT_DIR, li
         logger.info("No new cases to download")
         return 0
     
+    # Ensure the output directory exists
     ensure_dir_exists(output_dir)
-    logger.info(f"Starting download of {len(case_data)} cases")
+    logger.info(f"Starting download of {len(case_data)} cases sequentially")
     
     successful_downloads = 0
     
-    # Define a worker function to handle individual downloads
-    def download_worker(case_info: Dict[str, str]) -> Optional[Tuple[str, str]]:
+    # Process cases sequentially instead of in parallel
+    for case_info in case_data:
         title = case_info["title"]
         link = case_info["link"]
         
@@ -102,28 +105,16 @@ def save_cases(case_data: List[Dict[str, str]], output_dir: str = OUTPUT_DIR, li
         success, case_number, _ = download_case(link, output_dir)
         
         if success and case_number:
-            logger.info(f"Successfully downloaded case: {title} ({case_number})")
-            return link, case_number
-        else:
-            logger.error(f"Failed to download case: {title}")
-            return None
-    
-    # Use ThreadPoolExecutor to download cases in parallel
-    results = []
-    with ThreadPoolExecutor(max_workers=4) as executor:  # Limit to 4 parallel downloads
-        for case_info in case_data:
-            # Add small delay between submitting tasks to avoid overwhelming the server
-            time.sleep(0.5)
-            future = executor.submit(download_worker, case_info)
-            results.append(future)
-    
-    # Process results and update scraped links
-    for future in results:
-        result = future.result()
-        if result:
-            link, case_number = result
+            # Update scraped links right after successful download
             save_scraped_link(link, case_number, links_file)
             successful_downloads += 1
+            logger.info(f"Successfully downloaded case: {title} ({case_number})")
+        else:
+            logger.error(f"Failed to download case: {title}")
+        
+        # Wait for 3 seconds before processing the next case
+        logger.info("Waiting 3 seconds before processing the next case...")
+        time.sleep(3)
     
     logger.info(f"Download completed. Successfully downloaded {successful_downloads}/{len(case_data)} cases")
     return successful_downloads
