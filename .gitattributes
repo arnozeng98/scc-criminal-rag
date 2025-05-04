@@ -1,0 +1,10 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Mark HTML files in data directory as generated content, excluded from code statistics
+data/**/*.html linguist-generated=true
+data/*.html linguist-generated=true
+
+# Treat HTML files as binary in diff (no content differences shown)
+data/**/*.html -diff
+data/*.html -diff 
