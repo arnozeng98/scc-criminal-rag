@@ -172,3 +172,4 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+backend/src/embeddings/vector_store.py.bak
