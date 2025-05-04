@@ -79,12 +79,14 @@ class ChromaVectorStore:
         for meta in metadata_list:
             # Flatten metadata for ChromaDB
             case_metadata = meta.get('metadata', {})
+            
+            # Ensure no None values in metadata - replace with appropriate defaults
             chroma_meta = {
-                "case_number": case_metadata.get('case_number', ''),
-                "title": case_metadata.get('title', ''),
-                "date": case_metadata.get('date', ''),
-                "is_criminal": case_metadata.get('is_criminal', False),
-                "chunk_index": case_metadata.get('chunk_index', 0)
+                "case_number": case_metadata.get('case_number', '') or '',
+                "title": case_metadata.get('title', '') or '',
+                "date": case_metadata.get('date', '') or '',
+                "is_criminal": bool(case_metadata.get('is_criminal', False)),
+                "chunk_index": int(case_metadata.get('chunk_index', 0) or 0)
             }
             chroma_metadata.append(chroma_meta)
         
@@ -144,14 +146,15 @@ class ChromaVectorStore:
                     similarity = 1.0 - distance
                     
                     # Create original metadata format for compatibility
+                    # Ensure no None values in metadata
                     metadata_entry = {
-                        'text': document,
+                        'text': document or '',
                         'metadata': {
-                            'case_number': chroma_metadata.get('case_number', ''),
-                            'title': chroma_metadata.get('title', ''),
-                            'date': chroma_metadata.get('date', ''),
-                            'is_criminal': chroma_metadata.get('is_criminal', False),
-                            'chunk_index': chroma_metadata.get('chunk_index', 0)
+                            'case_number': chroma_metadata.get('case_number', '') or '',
+                            'title': chroma_metadata.get('title', '') or '',
+                            'date': chroma_metadata.get('date', '') or '',
+                            'is_criminal': bool(chroma_metadata.get('is_criminal', False)),
+                            'chunk_index': int(chroma_metadata.get('chunk_index', 0) or 0)
                         }
                     }
                     
@@ -205,10 +208,21 @@ def build_vector_store(chunks_with_embeddings: List[Dict[str, Any]], output_dir:
         embeddings.append(chunk['embedding'])
         
         # Create metadata entry (everything except the embedding)
+        # Ensure text is never None
+        text = chunk.get('text', '')
+        if text is None:
+            text = ''
+            
+        # Ensure metadata is never None
+        metadata_dict = chunk.get('metadata', {})
+        if metadata_dict is None:
+            metadata_dict = {}
+            
         metadata = {
-            'text': chunk.get('text', ''),
-            'metadata': chunk.get('metadata', {})
+            'text': text,
+            'metadata': metadata_dict
         }
+        
         metadata_list.append(metadata)
     
     logger.info(f"Building vector store with {len(embeddings)} embeddings")
