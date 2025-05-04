@@ -176,3 +176,6 @@ backend/src/embeddings/vector_store.py.bak
 .env.example
 .gitignore~
 data/vectors/chroma_db/
+
+# Node modules should not be tracked by git
+node_modules/
