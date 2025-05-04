@@ -10,7 +10,7 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 from backend.src.config import (
-    OUTPUT_DIR, PROCESSED_DIR, PROCESSOR_LOG_FILE
+    OUTPUT_DIR, PROCESSED_DIR, PROCESSOR_LOG_FILE, PROJECT_ROOT
 )
 from backend.src.utils.log_utils import setup_logging
 from backend.src.utils.file_utils import save_json_file, ensure_dir_exists
@@ -20,6 +20,31 @@ from .chunker import create_case_chunks
 
 # Set up logging
 logger = setup_logging(PROCESSOR_LOG_FILE)
+
+def get_relative_path(file_path: str) -> str:
+    """
+    Convert an absolute path to a path relative to the project root.
+    
+    Args:
+        file_path: Absolute file path
+        
+    Returns:
+        Path relative to the project root
+    """
+    try:
+        # Convert paths to Path objects for easier manipulation
+        abs_path = Path(file_path).resolve()
+        project_root = Path(PROJECT_ROOT).resolve()
+        
+        # Get the relative path
+        rel_path = abs_path.relative_to(project_root)
+        
+        # Convert back to string with forward slashes
+        return str(rel_path).replace('\\', '/')
+    except ValueError:
+        # If path is not relative to project root, return original
+        logger.warning(f"Could not convert {file_path} to relative path")
+        return file_path
 
 def process_case_file(file_path: str) -> Dict[str, Any]:
     """
@@ -47,13 +72,16 @@ def process_case_file(file_path: str) -> Dict[str, Any]:
         # Generate chunks for the case
         chunks = create_case_chunks(cleaned_data)
         
+        # Convert absolute path to relative path
+        relative_path = get_relative_path(file_path)
+        
         # Create the processed result
         result = {
             'metadata': cleaned_data.get('metadata', {}),
             'facts': cleaned_data.get('facts', ''),
             'statutes_cited': cleaned_data.get('statutes_cited', []),
             'is_criminal': cleaned_data.get('is_criminal', False),
-            'file_path': file_path,
+            'file_path': relative_path,
             'chunks': chunks
         }
         
@@ -62,12 +90,16 @@ def process_case_file(file_path: str) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error processing case file {file_path}: {e}")
+        
+        # Convert absolute path to relative path even for error cases
+        relative_path = get_relative_path(file_path)
+        
         return {
             'metadata': {},
             'facts': '',
             'statutes_cited': [],
             'is_criminal': False,
-            'file_path': file_path,
+            'file_path': relative_path,
             'chunks': [],
             'error': str(e)
         }

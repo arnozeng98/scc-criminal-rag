@@ -38,8 +38,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--input-dir", 
         type=str, 
-        default=OUTPUT_DIR, 
-        help=f"Directory containing raw HTML files (default: {OUTPUT_DIR})"
+        default=os.path.join(OUTPUT_DIR, 'raw'), 
+        help=f"Directory containing raw HTML files (default: {os.path.join(OUTPUT_DIR, 'raw')})"
     )
     parser.add_argument(
         "--output-dir", 
