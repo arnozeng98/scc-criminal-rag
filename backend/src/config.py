@@ -42,7 +42,7 @@ API_LOG_FILE = LOGS_DIR / "api.log"
 # Data storage paths
 VECTORS_DIR = DATA_DIR / "vectors"
 PROCESSED_DIR = DATA_DIR / "processed"
-SCRAPED_LINKS_FILE = PROCESSED_DIR / "scraped_links.json"
+SCRAPED_LINKS_FILE = DATA_DIR / "scraped_links.json"
 
 # RAG settings
 CHUNK_SIZE = 500
