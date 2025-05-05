@@ -60,15 +60,17 @@ async def root() -> Dict[str, Any]:
     return {
         "message": "Welcome to the SCC Criminal Cases RAG API",
         "docs_url": "/docs",
-        "health_check": "/rag/health"
+        "health_check": "/health"
     }
 
 @app.get("/health")
 async def health_check() -> Dict[str, Any]:
     """
-    API health check endpoint.
+    Health check endpoint for Docker.
+    This endpoint is used by Docker health checks to verify
+    that the API is running correctly.
     """
     return {
-        "status": "ok",
-        "message": "API is running"
+        "status": "healthy",
+        "timestamp": time.time()
     } 
