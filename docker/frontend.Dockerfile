@@ -20,11 +20,8 @@ FROM --platform=${TARGETPLATFORM:-linux/amd64} nginx:alpine
 # Copy built assets from the builder stage
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# Copy custom Nginx config
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-
 # Expose ports
-EXPOSE 80 443
+EXPOSE 80
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"] 

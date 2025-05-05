@@ -35,6 +35,9 @@ RUN chmod +x /usr/local/bin/uvicorn
 # Copy backend code
 COPY backend/ ./backend/
 
+# Copy data directory into the image
+COPY data/ ./data/
+
 # Environment variables
 ENV PYTHONPATH=/app
 

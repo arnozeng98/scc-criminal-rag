@@ -3,6 +3,17 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+# Prompt user to enter Docker Hub username
+read -p "Enter Docker Hub username: " DOCKER_USERNAME
+if [ -z "$DOCKER_USERNAME" ]; then
+    echo "No username provided, using default: arnozeng"
+    DOCKER_USERNAME="arnozeng"
+fi
+
+# Login to Docker Hub
+echo "Logging in to Docker Hub..."
+docker login -u ${DOCKER_USERNAME}
+
 # Set up Docker Buildx builder if not exists
 if ! docker buildx inspect multiarch-builder &>/dev/null; then
     echo "Creating new Docker Buildx builder"
@@ -16,8 +27,8 @@ fi
 docker buildx inspect --bootstrap
 
 # Variables
-BACKEND_IMAGE=arnozeng/scc-backend
-FRONTEND_IMAGE=arnozeng/scc-frontend
+BACKEND_IMAGE=${DOCKER_USERNAME}/scc-backend
+FRONTEND_IMAGE=${DOCKER_USERNAME}/scc-frontend
 TAG=latest
 
 # Build and push backend multi-architecture image
