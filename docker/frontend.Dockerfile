@@ -23,8 +23,8 @@ COPY --from=0 /app/build /usr/share/nginx/html
 # Copy custom Nginx config
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port
-EXPOSE 80
+# Expose ports
+EXPOSE 80 443
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"] 

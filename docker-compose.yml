@@ -3,9 +3,7 @@ version: '3.8'
 services:
   # Backend API service
   backend:
-    build:
-      context: .
-      dockerfile: docker/backend.Dockerfile
+    image: arnozeng/scc-backend:latest
     volumes:
       - ./data:/app/data
       - ./backend:/app/backend
@@ -25,16 +23,20 @@ services:
 
   # Frontend service
   frontend:
-    build:
-      context: .
-      dockerfile: docker/frontend.Dockerfile
+    image: arnozeng/scc-frontend:latest
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      # Mount certificate from aaPanel
+      - /www/server/panel/vhost/cert/scc.arnozeng.com:/etc/nginx/ssl:ro
+      # Mount nginx config for easy updates without rebuilding
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - backend
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:80/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -42,4 +44,9 @@ services:
 
 volumes:
   data:
-    driver: local 
+    driver: local
+
+networks:
+  default:
+    name: scc-network
+    driver: bridge 

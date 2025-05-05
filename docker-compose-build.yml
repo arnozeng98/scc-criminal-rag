@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  # Backend API service
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    image: arnozeng/scc-backend:latest
+
+  # Frontend service
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    image: arnozeng/scc-frontend:latest 
