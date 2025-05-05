@@ -179,3 +179,13 @@ data/vectors/chroma_db/
 
 # Node modules should not be tracked by git
 node_modules/
+
+# Certificate and Docker files
+.env
+
+# Local development and testing files
+*.log
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
