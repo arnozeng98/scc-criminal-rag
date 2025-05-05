@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM --platform=${BUILDPLATFORM:-linux/amd64} node:16-alpine AS builder
 
 WORKDIR /app
 
@@ -15,10 +15,10 @@ COPY frontend/ ./
 RUN npm run build
 
 # Use Nginx to serve the static files
-FROM nginx:alpine
+FROM --platform=${TARGETPLATFORM:-linux/amd64} nginx:alpine
 
 # Copy built assets from the builder stage
-COPY --from=0 /app/build /usr/share/nginx/html
+COPY --from=builder /app/build /usr/share/nginx/html
 
 # Copy custom Nginx config
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf

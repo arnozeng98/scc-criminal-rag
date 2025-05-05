@@ -1,4 +1,4 @@
-FROM python:3.9-slim AS builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} python:3.9-slim AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Final stage
-FROM python:3.9-slim
+FROM --platform=${TARGETPLATFORM:-linux/amd64} python:3.9-slim
 
 WORKDIR /app
 
@@ -28,6 +28,9 @@ RUN apt-get update && apt-get install -y \
 # Copy installed packages from builder stage
 COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
+
+# Ensure uvicorn is executable
+RUN chmod +x /usr/local/bin/uvicorn
 
 # Copy backend code
 COPY backend/ ./backend/
