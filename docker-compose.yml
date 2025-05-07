@@ -4,9 +4,16 @@ services:
   # Backend API service
   backend:
     image: arnozeng/scc-backend:latest
-    platform: linux/amd64
+    platform: linux/arm64
     ports:
       - "8000:8000"
+    volumes:
+      - /www/server/panel/data/compose/scc/.env:/app/.env
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DOMAIN=${DOMAIN}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
     command: python -m uvicorn backend.src.api.app:app --host 0.0.0.0 --port 8000
     restart: unless-stopped
     healthcheck:
@@ -19,7 +26,7 @@ services:
   # Frontend service
   frontend:
     image: arnozeng/scc-frontend:latest
-    platform: linux/amd64
+    platform: linux/arm64
     ports:
       - "8080:80"
     depends_on:

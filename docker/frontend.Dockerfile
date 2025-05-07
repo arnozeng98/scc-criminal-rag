@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} node:16-alpine AS builder
+FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-alpine AS builder
 
 WORKDIR /app
 
