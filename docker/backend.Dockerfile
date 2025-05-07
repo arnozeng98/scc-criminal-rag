@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} python:3.9-slim AS builder
+FROM --platform=${TARGETPLATFORM:-linux/amd64} python:3.9-slim AS builder
 
 WORKDIR /app
 
