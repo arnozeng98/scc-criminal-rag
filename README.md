@@ -16,20 +16,32 @@ A Retrieval-Augmented Generation (RAG) system for Canadian Supreme Court crimina
 │   │   ├── utils/           # Utility functions
 │   │   ├── config.py        # Configuration settings
 │   │   └── main.py          # Entry point
-│   ├── scripts/             # Utility scripts
-│   └── tests/               # Unit and integration tests
+│   └── scripts/             # Utility scripts
 ├── frontend/                # React frontend
-│   ├── src/                 # Source code
-│   │   ├── components/      # React components
-│   │   ├── services/        # API services
-│   │   └── contexts/        # React contexts
+│   ├── public/              # Public assets
+│   └── src/                 # Source code
+│       ├── components/      # React components
+│       ├── services/        # API services
+│       └── contexts/        # React contexts
 ├── data/                    # Data storage
 │   ├── raw/                 # Raw HTML files
 │   ├── processed/           # Processed data
 │   └── vectors/             # Vector embeddings
 ├── docs/                    # Documentation
+│   ├── api.md               # API documentation
+│   ├── deployment.md        # Deployment guide
+│   └── dependencies.md      # Dependencies information
 ├── docker/                  # Docker configuration
-└── docker-compose.yml       # Docker Compose configuration
+│   ├── backend.Dockerfile   # Backend container configuration
+│   └── frontend.Dockerfile  # Frontend container configuration
+├── .env.example             # Example environment variables
+├── build_multiarch.sh       # Multi-architecture build script
+├── docker-compose.yml       # Docker Compose configuration
+├── docker-compose-build.yml # Docker Compose build configuration
+├── run_pipeline.py          # Data pipeline script (Python)
+├── run_pipeline.sh          # Data pipeline script (Bash)
+├── run_pipeline.bat         # Data pipeline script (Windows)
+└── README.md                # This file
 ```
 
 ## Features
@@ -39,6 +51,8 @@ A Retrieval-Augmented Generation (RAG) system for Canadian Supreme Court crimina
 - **Vector Search**: Create embeddings and search for semantically relevant case information
 - **RAG System**: Combine retrieval with large language models to generate accurate answers
 - **Web Interface**: User-friendly chat interface for asking questions
+- **Cross-Architecture Support**: Deploy on both x86/AMD64 and ARM64 architectures
+- **Reverse Proxy Integration**: Support for deployment behind reverse proxies with proper API routing
 
 ## Getting Started
 
@@ -71,7 +85,23 @@ A Retrieval-Augmented Generation (RAG) system for Canadian Supreme Court crimina
    docker-compose up -d
    ```
 
-2. Access the web interface at `http://localhost`
+2. Access the web interface at `http://localhost:8080`
+
+### Multi-Architecture Support
+
+The system supports deployment on both x86/AMD64 and ARM64 architectures. Use the provided `build_multiarch.sh` script to build images for multiple architectures:
+
+```bash
+./build_multiarch.sh
+```
+
+For more information on ARM deployment, see [Deployment Guide](docs/deployment.md).
+
+### Reverse Proxy Configuration
+
+For production deployments, it's recommended to deploy behind a reverse proxy. The application is configured to support this setup with the frontend making API requests to `/api` instead of a hardcoded URL.
+
+See the [Deployment Guide](docs/deployment.md) for detailed reverse proxy configuration examples.
 
 ### Running Locally (Development)
 
@@ -87,20 +117,20 @@ A Retrieval-Augmented Generation (RAG) system for Canadian Supreme Court crimina
 2. Set up the data pipeline:
 
    ```bash
-   # Scrape case data
-   python scripts/run_scraper.py
-
-   # Process the data
-   python scripts/process_data.py
-
-   # Build the vector index
-   python scripts/build_index.py
+   # On Linux/macOS
+   ./run_pipeline.sh
+   
+   # On Windows
+   run_pipeline.bat
+   
+   # Or using Python directly
+   python run_pipeline.py
    ```
 
 3. Start the API server:
 
    ```bash
-   uvicorn src.api.app:app --reload
+   uvicorn backend.src.api.app:app --reload
    ```
 
 #### Frontend
@@ -120,6 +150,22 @@ A Retrieval-Augmented Generation (RAG) system for Canadian Supreme Court crimina
 
 3. Access the web interface at `http://localhost:3000`
 
+## Documentation
+
+- [API Documentation](docs/api.md): API endpoints and usage
+- [Deployment Guide](docs/deployment.md): Detailed deployment instructions
+- [Dependencies Documentation](docs/dependencies.md): Information about dependencies and version requirements
+
+## Dependencies
+
+The system uses several key dependencies:
+
+- **ChromaDB 0.6.3**: Vector database for embeddings storage
+- **FastAPI**: API framework
+- **React**: Frontend framework
+
+For a complete list of dependencies and version requirements, see the [Dependencies Documentation](docs/dependencies.md).
+
 ## Usage
 
 1. Open the web interface
@@ -128,7 +174,7 @@ A Retrieval-Augmented Generation (RAG) system for Canadian Supreme Court crimina
 
 ## License
 
-[MIT License](LICENSE)
+[Apache License 2.0](https://github.com/arnozeng98/scc-criminal-rag/blob/main/LICENSE)
 
 ## Acknowledgments
 

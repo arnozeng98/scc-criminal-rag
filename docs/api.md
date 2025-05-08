@@ -7,8 +7,16 @@ This document describes the API endpoints for the SCC Criminal Cases RAG system.
 The API is available at the following base URL:
 
 ```bash
+# When running locally
 http://localhost:8000
+
+# When running with reverse proxy
+/api
 ```
+
+### Reverse Proxy Configuration
+
+The system now supports reverse proxy deployment. In such configurations, API endpoints are available at `/api` path prefix rather than a separate domain or port.
 
 ## Authentication
 
@@ -123,7 +131,16 @@ Errors are returned with appropriate HTTP status codes and a JSON response conta
 ### cURL
 
 ```bash
+# Local development
 curl -X POST "http://localhost:8000/rag/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "What are the elements of self-defense in Canada?",
+    "top_k": 5
+  }'
+
+# With reverse proxy
+curl -X POST "/api/rag/query" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "What are the elements of self-defense in Canada?",
@@ -136,8 +153,12 @@ curl -X POST "http://localhost:8000/rag/query" \
 ```python
 import requests
 
+# Configure API URL based on environment
+API_URL = "http://localhost:8000"  # For local development
+# API_URL = "/api"  # For reverse proxy deployment
+
 response = requests.post(
-    "http://localhost:8000/rag/query",
+    f"{API_URL}/rag/query",
     json={
         "query": "What are the elements of self-defense in Canada?",
         "top_k": 5
@@ -151,7 +172,10 @@ print(result["answer"])
 ### JavaScript
 
 ```javascript
-fetch("http://localhost:8000/rag/query", {
+// Configure API URL based on environment
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
+fetch(`${API_URL}/rag/query`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
