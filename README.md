@@ -54,6 +54,14 @@ A Retrieval-Augmented Generation (RAG) system for Canadian Supreme Court crimina
 - **Cross-Architecture Support**: Deploy on both x86/AMD64 and ARM64 architectures
 - **Reverse Proxy Integration**: Support for deployment behind reverse proxies with proper API routing
 
+## Live Demo
+
+Try out the system without installation at our public demo site:
+
+**[https://scc.arnozeng.com](https://scc.arnozeng.com)**
+
+The demo provides full access to the RAG system's capabilities with the complete database of Canadian Supreme Court criminal cases.
+
 ## Getting Started
 
 ### Prerequisites
@@ -66,7 +74,7 @@ A Retrieval-Augmented Generation (RAG) system for Canadian Supreme Court crimina
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/scc-criminal-rag.git
+   git clone https://github.com/arnozeng98/scc-criminal-rag.git
    cd scc-criminal-rag
    ```
 
